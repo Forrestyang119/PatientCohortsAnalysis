@@ -60,10 +60,11 @@ def calSimilarPairs(groupList, weight):
 if __name__ == "__main__":
     groupList, listHead = readCSV("CopyofRandGroup.csv")
     weight = []
-    print len(groupList)
     for i in range(len(groupList[0]) - 1):
         weight.append(1)
+    #
     # weight = 1, calculate accuracy
+    #
     similarPairs = calSimilarPairs(groupList, weight)
     # print similarPairs
     similarPairs_Dr = ['12','02','12','02','12','02','01','01','12','02','02','01','01','02','01','12','01','12','01','01','02','12','12','12','12','12','01','12','12','12','01','12','02','02','12','12','02','12','01','12','12']
@@ -71,6 +72,10 @@ if __name__ == "__main__":
     accuracy = calAccuracy(similarPairs, similarPairs_Dr)
     best = 0
     while True:
+        weight = []
+        print len(groupList)
+        for i in range(len(groupList[0]) - 1):
+            weight.append(1)
         accuracy_change = []
         n = 0
         count = 0
@@ -79,24 +84,33 @@ if __name__ == "__main__":
         weightIncrease = []
         while True:
             n += 1
+            #
+            # Try to increase each weight to decide
+            #
             for i in range(len(weight)):
                 weight[i] += 1
                 similarPairs_new = calSimilarPairs(groupList, weight)
                 accuracy_new = calAccuracy(similarPairs_new, similarPairs_Dr)
                 accuracy_change.append(accuracy_new - accuracy)
                 weight[i] -= 1
-            # print accuracy_change
-            # print accuracy_change.index(max(accuracy_change))
-            # print accuracy + accuracy_change[accuracy_change.index(max(accuracy_change))]
+            
             maxImprove = accuracy_change[accuracy_change.index(max(accuracy_change))]
+            print accuracy + maxImprove
             acc.append(accuracy + maxImprove)
+            print weight
+            with open("weight.csv",'a') as File:
+                File.write(str(accuracy + maxImprove) + '\t' + str(weight)[1:-1] + '\n')
+            weightIncrease.append(weight)
+
             if maxImprove != improve:
                 improve = maxImprove
                 count = 0
-                weightIncrease.append(weight)
             else:
                 count += 1
-    # randomly
+            
+            #
+            # randomly increase weight
+            #
             maxIndex = []
             for j in range(len(weight)):
                 if accuracy_change[j] == maxImprove:
@@ -104,8 +118,6 @@ if __name__ == "__main__":
             r = randint(0, (len(maxIndex)-1))
             weight[maxIndex[r]] += 1
 
-
-            # weight[accuracy_change.index(max(accuracy_change))] += 1
             # print weight
             
             accuracy_change = []
@@ -116,14 +128,12 @@ if __name__ == "__main__":
                     best = accuracy + maxImprove
                     print best
                     print weight
+                    print "---------------------------------------------------------"
+                    with open("weight.csv", "a") as File:
+                        File.write('--------------------------------------------------' + '\n')
                     with open("output.csv",'wb') as resultFile:
-                        # wr = csv.writer(resultFile, dialect='excel')
                         resultFile.write(str(acc)[1:-1] + '\n')
-                        resultFile.write(str(weightIncrease)[1:-1] + '\n')
-                        resultFile.write(str(weight)[1:-1])
-                    # with open("output2.csv",'wb') as resultFile2:
-                    #     # wr = csv.writer(resultFile2, dialect='excel')
-                    #     resultFile2.write(weight)
+                        # resultFile.write(str(weightIncrease) + '\n')
                 break
         
         # print similarPairs_Dr
