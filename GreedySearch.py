@@ -21,7 +21,7 @@ def euclidean(list0, list1, weight):
         distance += math.pow((float(list0[i]) - float(list1[i])), 2) * float(weight[i])
     return math.sqrt(distance)
 
-# calculate similar pair in a group of list
+# calculate similar pair in a group of list (each group has three cases)
 def dist(list0, list1, list2, weight):
     length = len(list0)
     list0 = list0[1:length]
@@ -59,19 +59,39 @@ def calSimilarPairs(groupList, weight):
 
 if __name__ == "__main__":
     groupList, listHead = readCSV("CopyofRandGroup.csv")
-    weight = []
-    for i in range(len(groupList[0]) - 1):
-        weight.append(1)
+    # print groupList
+    coloums = len(groupList[0])
+    rows = len(groupList)
+    #
+    # Uniform each coloum
+    #
+    maxAttr = 0
+    for i in range(coloums):
+        if i > 0:
+            for j in range(rows):
+                if float(groupList[j][i]) > float(maxAttr):
+                    maxAttr = float(groupList[j][i])
+            for j in range(rows):
+                groupList[j][i] = float(float(groupList[j][i]) / maxAttr)
+            maxAttr = 0
+    print groupList
     #
     # weight = 1, calculate accuracy
     #
+    weight = []
+    for i in range(len(groupList[0]) - 1):
+        weight.append(1)
     similarPairs = calSimilarPairs(groupList, weight)
-    # print similarPairs
+    #
+    # Similar pairs of patients in each group labeled by doctor
+    #
     similarPairs_Dr = ['12','02','12','02','12','02','01','01','12','02','02','01','01','02','01','12','01','12','01','01','02','12','12','12','12','12','01','12','12','12','01','12','02','02','12','12','02','12','01','12','12']
-    # print similarPairs_Dr
     accuracy = calAccuracy(similarPairs, similarPairs_Dr)
     best = 0
     while True:
+        #
+        # Reset weight to [1, 1, ..., 1]
+        #
         weight = []
         print len(groupList)
         for i in range(len(groupList[0]) - 1):
@@ -85,7 +105,7 @@ if __name__ == "__main__":
         while True:
             n += 1
             #
-            # Try to increase each weight to decide
+            # Try to increase each weight to get the maxImprove weight
             #
             for i in range(len(weight)):
                 weight[i] += 1
@@ -93,14 +113,12 @@ if __name__ == "__main__":
                 accuracy_new = calAccuracy(similarPairs_new, similarPairs_Dr)
                 accuracy_change.append(accuracy_new - accuracy)
                 weight[i] -= 1
-            
             maxImprove = accuracy_change[accuracy_change.index(max(accuracy_change))]
             print accuracy + maxImprove
             acc.append(accuracy + maxImprove)
             print weight
             with open("weight.csv",'a') as File:
                 File.write(str(accuracy + maxImprove) + '\t' + str(weight)[1:-1] + '\n')
-            weightIncrease.append(weight)
 
             if maxImprove != improve:
                 improve = maxImprove
@@ -133,11 +151,6 @@ if __name__ == "__main__":
                         File.write('--------------------------------------------------' + '\n')
                     with open("output.csv",'wb') as resultFile:
                         resultFile.write(str(acc)[1:-1] + '\n')
-                        # resultFile.write(str(weightIncrease) + '\n')
                 break
         
-        # print similarPairs_Dr
-        # print similarPairs
-        # print similarPairs_new
-        # print n
     
