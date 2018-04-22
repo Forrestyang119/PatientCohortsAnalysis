@@ -1,5 +1,5 @@
-# GreedySearch
-A program to learn weights of each attribute from several given groups of patients.
+# Patient cohorts analysis
+A method to learn weights of each attribute from several given groups of patients and discover patient cohorts.
 ## Weights Learning
 1. Get a csv file which contains several groups, each group has three patients, and each patient has several attributes.
 2. We should know which two patients are similar in each group(labeled by a doctor), and enter them to the code.
